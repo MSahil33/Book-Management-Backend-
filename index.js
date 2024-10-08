@@ -2,9 +2,6 @@ import dotenv from 'dotenv';
 import connectDB from './src/Db/index.db.js';
 import { app } from './src/app.js';
 
-
-console.log("hello world");
-
 // // Configuring .env file  
 dotenv.config({
     path:'./.env'
@@ -13,7 +10,7 @@ dotenv.config({
 // // Connecting database
 connectDB()
 .then(()=>{
-    app.get((req,res)=>{
+    app.get("/",(req,res)=>{
         res.send("Server started successfully!");
     });
 
