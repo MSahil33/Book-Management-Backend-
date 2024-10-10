@@ -1,7 +1,15 @@
 import { User } from "../Models/users.model.js";
 import { ApiError } from "../Utils/ApiErrors.js"
 import { ApiResponse } from "../Utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
+// Creating a secure options for the cookies which means that by this options only the server has the acces to modify it
+const options = {
+    http: true,
+    secure: true,
+};
+
+// User Registeration Controller
 const userRegister = async (req, res) => {
 
     // Step-1 :  Getting the user details
@@ -44,14 +52,77 @@ const userRegister = async (req, res) => {
     });
 
     // Not returning the password in the response
-    const getNewUser = await User.findById(user._id).select("-password");
+    const createdUser = await User.findById(user._id).select("-password");
 
-    if (!getNewUser) {
+    if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user !!");
     }
 
     // console.log(fullName, email, password, location);
-    return res.status(200).json(new ApiResponse(201, getNewUser, "User created successfully"));
+    return res.status(200).json(new ApiResponse(201, createdUser, "User created successfully"));
 }
 
-export { userRegister };
+// User Login Controller
+const userLogin = async (req, res) => {
+    // 1. Getting the user login data from request body
+    const { username, email, password } = req.body;
+
+    // 2. Input validation
+    if (!(username || email)) {
+        throw new ApiError(400, "Username or email is required");
+    }
+    if (!password) {
+        throw new ApiError(400, "Password is required!");
+    }
+
+    // 3. Getting the user with username or email
+    const getUser = await User.findOne({
+        $or: [{ username }, { email }],
+    });
+
+    // 4. Checking whether the user exists with this email or username
+    if (!getUser) {
+        throw new ApiError(404, "No user with this email or username exist");
+    }
+
+    // 5 : Checking for the password
+    // we are using the methods created for encryption and comparison of user password with the database password
+
+    const isPasswordValid = await getUser.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+        throw new ApiError(400, "Invalid Password!!");
+    }
+
+    //6. Generating a JWT token for authorization of the user for other functionality
+    const token = getUser.generateToken();
+
+    //7. returning the response along with the cookie that stores the jwt token and its secure options
+    return res
+        .status(200)
+        .cookie("token", token, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: getUser,
+                    token
+                },
+                "User logged in succesfully"
+            )
+        )
+}
+
+// User Logout controller
+const userLogout = async (req, res) => {
+    // Now we are getting the user_id or user_object of the current logged in user in the body of the request(we have added this in the body of the request through the middleware whuch verify and adds the jwt token into the body)
+    const userId = req.user._id;
+
+    // Now sending the response back by clearing the token from the cookies and logging out
+    return res
+        .status(200)
+        .clearCookie("token", options)
+        .json(new ApiResponse(200, {}, "User Logged Out"));
+}
+
+export { userRegister, userLogin, userLogout };
