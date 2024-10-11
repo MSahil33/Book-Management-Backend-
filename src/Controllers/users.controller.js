@@ -125,4 +125,28 @@ const userLogout = async (req, res) => {
         .json(new ApiResponse(200, {}, "User Logged Out"));
 }
 
-export { userRegister, userLogin, userLogout };
+// User data update controller
+
+const changePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    const userId = req.user?.id
+
+    const currUser = await User.findById(userId);
+
+    const isPasswordCorrect = await currUser.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Invalid Old Password");
+    }
+
+    currUser.password = newPassword;
+
+    await currUser.save({ ValiditeBeforeSave: false });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Password Changed Successfully"));
+}
+
+export { userRegister, userLogin, userLogout, changePassword };
