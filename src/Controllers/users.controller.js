@@ -174,4 +174,58 @@ const getUserDetails = async (req, res) => {
         );
 }
 
-export { userRegister, userLogin, userLogout, changePassword, getUserDetails };
+// Update the current user details
+const updateUserDetails = async (req, res) => {
+
+    const { username, fullName, email, location } = req.body;
+
+
+    const userId = req.user?._id;
+
+    const currUser = await User.findById(userId);
+
+    if (username) {
+
+        // if (username === currUser.username) {
+        //     throw new ApiError(409, "Username same as previous one!!");
+        // }
+
+        const existingUserName = await User.findOne({ username });
+        if (existingUserName) {
+            throw new ApiError(409, "Username already exists");
+        }
+
+        currUser.username = username;
+    }
+
+    if (email) {
+
+        // if (email === currUser.email) {
+        //     throw new ApiError(409, "Email same as previous one!!");
+        // }
+        const existingUserEmail = await User.findOne({ email });
+
+        if (existingUserEmail) {
+            throw new ApiError(409, "Email already registered");
+        }
+
+        currUser.email = email;
+    }
+
+    if (fullName) {
+        currUser.fullName = fullName;
+    }
+
+    if (location) {
+        currUser.location = location;
+    }
+
+    await currUser.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(201, currUser, "User details updated Successfully!!"));
+}
+
+
+export { userRegister, userLogin, userLogout, changePassword, getUserDetails, updateUserDetails };
