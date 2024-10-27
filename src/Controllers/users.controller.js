@@ -227,5 +227,23 @@ const updateUserDetails = async (req, res) => {
         .json(new ApiResponse(201, currUser, "User details updated Successfully!!"));
 }
 
+// Controller to get the current user details
 
-export { userRegister, userLogin, userLogout, changePassword, getUserDetails, updateUserDetails };
+const getCurrentUser = async (req, res) => {
+    const userId = req?.user?._id;
+
+    console.log(req.user)
+    // Fetching new details from the database as the current user may have change its details after logging but in our token we have old data for that reason we need to get the new/updated data from database
+    const currUser = await User.findById(userId).select("-password");
+
+    if (!currUser) {
+        throw new ApiError(404, "Something went wrong!!!");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(201, currUser, "User details fetched successfully"));
+
+}
+
+export { userRegister, userLogin, userLogout, changePassword, getUserDetails, updateUserDetails, getCurrentUser };

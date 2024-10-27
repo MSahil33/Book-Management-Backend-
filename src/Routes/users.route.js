@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userRegister, userLogin, userLogout, changePassword, getUserDetails, updateUserDetails } from "../Controllers/users.controller.js";
+import { userRegister, userLogin, userLogout, changePassword, getUserDetails, updateUserDetails, getCurrentUser } from "../Controllers/users.controller.js";
 import { verifyJWT } from "../Middlewares/auth.middleware.js";
 
 
@@ -20,4 +20,6 @@ userRouter.route("/u/:username").get(verifyJWT, getUserDetails);
 // Update user details
 userRouter.route("/update-user").put(verifyJWT, updateUserDetails);
 
+// Get current logged in user details
+userRouter.route("/my-profile").get(verifyJWT, getCurrentUser);
 export default userRouter;
