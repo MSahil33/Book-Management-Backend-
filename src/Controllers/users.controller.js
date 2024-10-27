@@ -125,8 +125,7 @@ const userLogout = async (req, res) => {
         .json(new ApiResponse(200, {}, "User Logged Out"));
 }
 
-// User data update controller
-
+// User Current Password change controller
 const changePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
@@ -149,4 +148,30 @@ const changePassword = async (req, res) => {
         .json(new ApiResponse(200, {}, "Password Changed Successfully"));
 }
 
-export { userRegister, userLogin, userLogout, changePassword };
+// Get user details by username
+const getUserDetails = async (req, res) => {
+
+    // getting the username from the url
+    const { username } = req.params;
+
+    if (!(username?.trim())) {
+        throw new ApiError(401, "username is required");
+    }
+
+    // Getting the user details from the database except the password
+    const getUser = await User.findOne({ username }).select("-password");
+
+    // Validating whether the user exists with the input username
+    if (!getUser) {
+        throw new ApiError(404, "Invalid username!!");
+    }
+
+    // Sending the requested user details
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, getUser, "User details fetched successfully!")
+        );
+}
+
+export { userRegister, userLogin, userLogout, changePassword, getUserDetails };

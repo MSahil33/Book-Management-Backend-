@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userRegister, userLogin, userLogout, changePassword } from "../Controllers/users.controller.js";
+import { userRegister, userLogin, userLogout, changePassword, getUserDetails } from "../Controllers/users.controller.js";
 import { verifyJWT } from "../Middlewares/auth.middleware.js";
 
 
@@ -13,5 +13,8 @@ userRouter.route("/login").post(userLogin); //user Login route
 userRouter.route("/logout").post(verifyJWT, userLogout); //User Logout route 
 // Password changed rout
 userRouter.route("/change-password").post(verifyJWT, changePassword);
+
+// Creating a route for getting the details of a particular channel with authorizing of the user using th verifyJWT middleware and in this we are getting the username from the url params
+userRouter.route("/u/:username").get(verifyJWT, getUserDetails);
 
 export default userRouter;
