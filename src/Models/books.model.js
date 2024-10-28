@@ -24,8 +24,7 @@ const bookSchema = new mongoose.Schema({
     ],
     isbn: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     // A book can belong to single or multiple genres
     genre: [

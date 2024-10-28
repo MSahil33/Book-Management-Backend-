@@ -47,4 +47,21 @@ const postBook = async (req, res) => {
         .json(201, new ApiResponse(201, getPostedBook, "Book uploaded successfully"));
 }
 
-export { postBook }
+
+// Controller to get the books posted by the current loggedin user
+const getMyBooks = async (req, res) => {
+
+    const currUserId = req.user?._id;
+
+
+    const myBooks = await Book.find({ addedBy: currUserId });
+    if (!myBooks) {
+        throw new ApiError(404, "No books found!!");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { TotalBooks: myBooks.length, myBooks }, "Books fetched succesfully"));
+}
+
+export { postBook, getMyBooks }
