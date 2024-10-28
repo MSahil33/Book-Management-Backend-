@@ -2,7 +2,7 @@ import { Book } from "../Models/books.model.js";
 import { ApiError } from "../Utils/ApiErrors.js"
 import { ApiResponse } from "../Utils/ApiResponse.js";
 
-// 
+// Controller to upload/post a new book
 const postBook = async (req, res) => {
 
     const currUserId = req.user?._id;
@@ -44,9 +44,8 @@ const postBook = async (req, res) => {
 
     return res
         .status(200)
-        .json(201, new ApiResponse(201, getPostedBook, "Book uploaded successfully"));
+        .json(new ApiResponse(201, getPostedBook, "Book uploaded successfully"));
 }
-
 
 // Controller to get the books posted by the current loggedin user
 const getMyBooks = async (req, res) => {
@@ -77,4 +76,44 @@ const getAllBooks = async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, { TotalBooks: books.length, books }, "Books fetched successfully"));
 }
-export { postBook, getMyBooks, getAllBooks }
+
+// Controller to delete a book by its id
+const deleteBook = async (req, res) => {
+
+    // Reading the bookId from the url parameters 
+    const { bookId } = req.params;
+    // console.log(bookId);
+
+    // Getting the current logged in user id
+    const currUserId = req.user?._id.toString();
+
+    // Now getting the book for the input id
+    const book = await Book.findById(bookId);
+
+    // Checking whether the book exists for that bookId
+    if (!book) {
+        throw new ApiError(404, "No book found!!");
+    }
+
+    const addedBy = book?.addedBy?.toString();
+
+    // Now chechking whether the current logged in user is same as a the user who added/posted this job
+
+    if (addedBy !== currUserId) {
+        return res
+            .status(409)
+            .json(new ApiResponse(409, "You are not authorized to delete this book!!"));
+    }
+
+    // Deleting the book
+    await Book.deleteOne({ _id: bookId });
+
+
+    return res
+        .status(200)
+        .json(new ApiResponse(202, [], "Book Deleted Successfully"));
+    // if ()
+}
+
+
+export { postBook, getMyBooks, getAllBooks, deleteBook }
