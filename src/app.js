@@ -7,6 +7,7 @@ import userRouter from "./Routes/users.route.js";
 
 // Cross-origin resource sharing (CORS) it is mainly used for allowing only the particular  domain which have the access rights.
 import cors from "cors";
+import bookRouter from "./Routes/books.route.js";
 
 const app = express();
 
@@ -39,5 +40,8 @@ app.use(cookieParser())
 
 // User route usage
 app.use("/api/v1/users", userRouter);
+
+// Book route usage
+app.use("/api/v1/books", bookRouter);
 
 export { app };

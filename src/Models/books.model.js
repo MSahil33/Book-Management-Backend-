@@ -30,11 +30,13 @@ const bookSchema = new mongoose.Schema({
     // A book can belong to single or multiple genres
     genre: [
         {
-            type: String
+            type: String,
+            required: true
         },
     ],
     publishedDate: {
-        type: Date
+        type: Date,
+        default: Date.now // Default date as today's date
     },
     summary: {
         type: String
