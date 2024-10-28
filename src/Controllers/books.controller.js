@@ -64,4 +64,17 @@ const getMyBooks = async (req, res) => {
         .json(new ApiResponse(200, { TotalBooks: myBooks.length, myBooks }, "Books fetched succesfully"));
 }
 
-export { postBook, getMyBooks }
+// Controller to get all the posted books in the database
+const getAllBooks = async (req, res) => {
+
+    const books = await Book.find();
+
+    if (!books) {
+        throw new ApiError(500, "Something went wrong!!");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { TotalBooks: books.length, books }, "Books fetched successfully"));
+}
+export { postBook, getMyBooks, getAllBooks }
